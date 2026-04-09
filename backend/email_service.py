@@ -1,8 +1,8 @@
 # backend/email_service.py
-# Sends complaint emails to ONE fixed email address (set in .env)
-# No branch selection — all complaints go to RECEIVER_EMAIL
+# Sends complaint emails to ONE fixed address (RECEIVER_EMAIL in .env)
 
 import smtplib
+import traceback
 from email.mime.text import MIMEText
 from email.mime.multipart import MIMEMultipart
 import os
@@ -10,14 +10,10 @@ from dotenv import load_dotenv
 
 load_dotenv()
 
-# -------------------------------------------------------
-# Email config — set these in your .env file
-# -------------------------------------------------------
-SENDER_EMAIL       = os.getenv("SENDER_EMAIL",       "your_system_email@gmail.com")
-SENDER_APP_PASSWORD= os.getenv("SENDER_APP_PASSWORD", "your_app_password_here")
-
-# Single receiver — all complaints go here
-RECEIVER_EMAIL     = os.getenv("RECEIVER_EMAIL",      "admin@brainchecker.com")
+# ── Read from environment ────────────────────────────────────────
+SENDER_EMAIL        = os.getenv("SENDER_EMAIL",        "").strip()
+SENDER_APP_PASSWORD = os.getenv("SENDER_APP_PASSWORD", "").strip()
+RECEIVER_EMAIL      = os.getenv("RECEIVER_EMAIL",      "").strip()
 
 
 def send_complaint_email(
@@ -26,124 +22,156 @@ def send_complaint_email(
     rating:        int,
     message:       str,
 ) -> bool:
-    """
-    Send a complaint alert email to the one fixed receiver.
+    """Send complaint alert to RECEIVER_EMAIL via Gmail SMTP."""
 
-    Args:
-        customer_name: Name of the customer
-        service:       Service/test the customer took
-        rating:        Star rating (1-3)
-        message:       The complaint text
+    # ── Safety checks — print clear errors if .env is wrong ──────
+    if not SENDER_EMAIL:
+        print("[EMAIL] ❌ SENDER_EMAIL is missing in .env / Render environment variables")
+        return False
+    if not SENDER_APP_PASSWORD:
+        print("[EMAIL] ❌ SENDER_APP_PASSWORD is missing in .env / Render environment variables")
+        return False
+    if not RECEIVER_EMAIL:
+        print("[EMAIL] ❌ RECEIVER_EMAIL is missing in .env / Render environment variables")
+        return False
 
-    Returns:
-        True if email sent successfully, False otherwise.
-    """
+    print(f"[EMAIL] Attempting to send from {SENDER_EMAIL} → {RECEIVER_EMAIL}")
+
     try:
-        # ── Build the email ──────────────────────────────────────
+        # ── Build email ──────────────────────────────────────────
         msg = MIMEMultipart("alternative")
-        msg["Subject"]  = f"⚠️ Customer Complaint — {rating}/5 Stars"
-        msg["From"]     = SENDER_EMAIL    # system email sends it
-        msg["To"]       = RECEIVER_EMAIL  # one fixed receiver
+        msg["Subject"] = f"New Complaint — {rating}/5 Stars | Brain Checker"
+        msg["From"]    = SENDER_EMAIL
+        msg["To"]      = RECEIVER_EMAIL
 
-        # Plain text body
-        body = f"""
-Customer Complaint Alert
-========================
-
+        # Plain text fallback
+        plain = f"""
+Brain Checker — Customer Complaint
+===================================
 Customer Name  : {customer_name}
 Service / Test : {service}
 Rating         : {rating} / 5
 
 Complaint:
-----------
 {message}
 
-========================
-Sent automatically by the Brain Checker Feedback System.
+---
+Sent by Brain Checker AI Feedback System
         """.strip()
 
-        # HTML body (looks better in Gmail)
-        stars_html = "⭐" * rating + "☆" * (5 - rating)
-        html_body = f"""
+        # HTML version
+        stars_filled = "⭐" * rating
+        stars_empty  = "☆"  * (5 - rating)
+
+        html = f"""
+<!DOCTYPE html>
 <html>
-<body style="font-family: Arial, sans-serif; color: #333; background: #f9f9f9; padding: 20px;">
-  <div style="max-width: 580px; margin: auto; background: #fff;
-              border-radius: 12px; overflow: hidden;
-              border: 1px solid #e0e0e0; box-shadow: 0 2px 12px rgba(0,0,0,0.08);">
+<body style="margin:0;padding:0;background:#f4f7fb;font-family:Arial,sans-serif;">
+  <table width="100%" cellpadding="0" cellspacing="0" style="padding:32px 16px;">
+    <tr>
+      <td align="center">
+        <table width="580" cellpadding="0" cellspacing="0"
+               style="background:#fff;border-radius:12px;overflow:hidden;
+                      border:1px solid #e0e0e0;box-shadow:0 2px 12px rgba(0,0,0,0.07);">
 
-    <!-- Header -->
-    <div style="background: linear-gradient(135deg, #4db6ac, #00897b);
-                padding: 24px 28px; color: white;">
-      <h2 style="margin: 0; font-size: 1.3rem;">⚠️ Customer Complaint Alert</h2>
-      <p style="margin: 6px 0 0; opacity: 0.9; font-size: 0.9rem;">
-        Brain Checker Feedback System
-      </p>
-    </div>
+          <!-- Header -->
+          <tr>
+            <td style="background:linear-gradient(135deg,#4db6ac,#00897b);
+                       padding:24px 28px;color:#fff;">
+              <h2 style="margin:0;font-size:1.2rem;">&#9888;&#65039; Customer Complaint</h2>
+              <p style="margin:4px 0 0;opacity:0.85;font-size:0.85rem;">
+                Brain Checker AI Feedback System
+              </p>
+            </td>
+          </tr>
 
-    <!-- Details -->
-    <div style="padding: 28px;">
-      <table style="width: 100%; border-collapse: collapse; margin-bottom: 20px;">
-        <tr style="border-bottom: 1px solid #f0f0f0;">
-          <td style="padding: 10px 0; font-weight: 700; color: #555; width: 150px;">
-            Customer Name
-          </td>
-          <td style="padding: 10px 0; color: #1a2332; font-weight: 600;">
-            {customer_name}
-          </td>
-        </tr>
-        <tr style="border-bottom: 1px solid #f0f0f0;">
-          <td style="padding: 10px 0; font-weight: 700; color: #555;">
-            Service / Test
-          </td>
-          <td style="padding: 10px 0; color: #1a2332;">
-            {service}
-          </td>
-        </tr>
-        <tr>
-          <td style="padding: 10px 0; font-weight: 700; color: #555;">
-            Rating
-          </td>
-          <td style="padding: 10px 0; font-size: 1.1rem;">
-            {stars_html} &nbsp;<span style="color:#555; font-size:0.85rem;">({rating}/5)</span>
-          </td>
-        </tr>
-      </table>
+          <!-- Body -->
+          <tr>
+            <td style="padding:28px;">
 
-      <!-- Complaint box -->
-      <div style="background: #fff8f8; border-left: 4px solid #e57373;
-                  border-radius: 6px; padding: 16px 20px;">
-        <p style="margin: 0 0 6px; font-weight: 700; color: #c62828; font-size: 0.85rem;
-                  text-transform: uppercase; letter-spacing: 0.05em;">
-          Complaint Message
-        </p>
-        <p style="margin: 0; line-height: 1.7; color: #333;">
-          {message}
-        </p>
-      </div>
+              <table width="100%" cellpadding="0" cellspacing="0"
+                     style="border-collapse:collapse;margin-bottom:20px;">
+                <tr style="border-bottom:1px solid #f0f0f0;">
+                  <td style="padding:10px 0;font-weight:700;color:#555;width:150px;">
+                    Customer Name
+                  </td>
+                  <td style="padding:10px 0;color:#1a2332;font-weight:600;">
+                    {customer_name}
+                  </td>
+                </tr>
+                <tr style="border-bottom:1px solid #f0f0f0;">
+                  <td style="padding:10px 0;font-weight:700;color:#555;">
+                    Service / Test
+                  </td>
+                  <td style="padding:10px 0;color:#1a2332;">
+                    {service}
+                  </td>
+                </tr>
+                <tr>
+                  <td style="padding:10px 0;font-weight:700;color:#555;">
+                    Rating
+                  </td>
+                  <td style="padding:10px 0;font-size:1.15rem;">
+                    {stars_filled}{stars_empty}
+                    <span style="color:#888;font-size:0.82rem;margin-left:6px;">
+                      ({rating}/5)
+                    </span>
+                  </td>
+                </tr>
+              </table>
 
-      <p style="margin-top: 24px; color: #aaa; font-size: 12px;">
-        This alert was sent automatically by the Brain Checker Feedback System.
-      </p>
-    </div>
-  </div>
+              <!-- Complaint box -->
+              <div style="background:#fff8f8;border-left:4px solid #e57373;
+                          border-radius:6px;padding:16px 20px;">
+                <p style="margin:0 0 8px;font-weight:700;color:#c62828;
+                          font-size:0.8rem;text-transform:uppercase;letter-spacing:0.06em;">
+                  Complaint Message
+                </p>
+                <p style="margin:0;line-height:1.75;color:#333;">
+                  {message}
+                </p>
+              </div>
+
+              <p style="margin-top:24px;color:#bbb;font-size:11px;">
+                Sent automatically by the Brain Checker Feedback System.
+              </p>
+            </td>
+          </tr>
+
+        </table>
+      </td>
+    </tr>
+  </table>
 </body>
 </html>
         """
 
-        msg.attach(MIMEText(body,      "plain"))
-        msg.attach(MIMEText(html_body, "html"))
+        msg.attach(MIMEText(plain, "plain"))
+        msg.attach(MIMEText(html,  "html"))
 
-        # ── Send via Gmail SMTP SSL ──────────────────────────────
-        with smtplib.SMTP_SSL("smtp.gmail.com", 465) as server:
+        # ── Connect and send ─────────────────────────────────────
+        print("[EMAIL] Connecting to smtp.gmail.com:465 ...")
+        with smtplib.SMTP_SSL("smtp.gmail.com", 465, timeout=20) as server:
+            print("[EMAIL] Connected. Logging in ...")
             server.login(SENDER_EMAIL, SENDER_APP_PASSWORD)
+            print("[EMAIL] Login successful. Sending ...")
             server.sendmail(SENDER_EMAIL, RECEIVER_EMAIL, msg.as_string())
 
-        print(f"[EMAIL] ✅ Complaint sent to {RECEIVER_EMAIL}")
+        print(f"[EMAIL] ✅ Email sent successfully to {RECEIVER_EMAIL}")
         return True
 
     except smtplib.SMTPAuthenticationError:
-        print("[EMAIL] ❌ Auth failed — check SENDER_EMAIL and SENDER_APP_PASSWORD in .env")
+        print("[EMAIL] ❌ AUTHENTICATION FAILED.")
+        print("[EMAIL]    → Make sure SENDER_APP_PASSWORD is a Gmail App Password")
+        print("[EMAIL]    → NOT your regular Gmail password")
+        print("[EMAIL]    → Get one at: Google Account → Security → App Passwords")
         return False
+
+    except smtplib.SMTPException as e:
+        print(f"[EMAIL] ❌ SMTP error: {e}")
+        return False
+
     except Exception as e:
-        print(f"[EMAIL] ❌ Failed: {e}")
+        print(f"[EMAIL] ❌ Unexpected error: {e}")
+        print(traceback.format_exc())
         return False
