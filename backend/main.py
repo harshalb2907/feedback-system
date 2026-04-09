@@ -186,6 +186,28 @@ def health_check():
 
 
 # -------------------------------------------------------
+# Test Email endpoint — open in browser to verify email
+# -------------------------------------------------------
+@app.get("/test-email")
+async def test_email():
+    import os
+    sender   = os.getenv("SENDER_EMAIL",   "NOT SET")
+    receiver = os.getenv("RECEIVER_EMAIL", "NOT SET")
+    result = send_complaint_email(
+        customer_name="Test User",
+        service="MIT: Multiple Intelligence Assessment",
+        rating=1,
+        message="TEST email from Brain Checker. If received, email is working!",
+    )
+    return {
+        "email_sent": result,
+        "sent_from":  sender,
+        "sent_to":    receiver,
+        "tip": "If true but no email — CHECK SPAM/JUNK FOLDER",
+    }
+
+
+# -------------------------------------------------------
 # Serve frontend static files
 # -------------------------------------------------------
 FRONTEND_DIR = Path(__file__).parent.parent / "frontend"
