@@ -1,0 +1,297 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Brain Checker — AI Feedback System</title>
+
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link href="https://fonts.googleapis.com/css2?family=Syne:wght@600;700;800&family=Nunito+Sans:wght@300;400;600;700&display=swap" rel="stylesheet" />
+
+  <link rel="stylesheet" href="/static/style.css" />
+</head>
+<body>
+
+  <main class="page-wrapper">
+
+    <!-- ─── Header / Logo ──────────────────────── -->
+    <header class="site-header">
+      <div class="logo-wrap">
+        <img src="/static/logo.png" alt="Brain Checker" class="logo-img" />
+      </div>
+      <p class="site-tagline">AI Feedback System</p>
+    </header>
+
+    <!-- ─── Card ───────────────────────────────── -->
+    <section class="card" id="feedback-card">
+
+      <!-- Step dots + lines -->
+      <div class="step-bar">
+        <div class="step-dot active" id="step-1-dot"></div>
+        <div class="step-line"       id="step-line-1"></div>
+        <div class="step-dot"        id="step-2-dot"></div>
+        <div class="step-line"       id="step-line-2"></div>
+        <div class="step-dot"        id="step-3-dot"></div>
+      </div>
+
+      <!-- ══ STEP 1 ════════════════════════════════════════ -->
+      <div class="form-step active" id="step-1">
+        <h1 class="card-title">Share Your Experience</h1>
+        <p class="card-subtitle">Tell us about your visit to Brain Checker</p>
+
+        <!-- 2-column grid: Name + Service -->
+        <div class="form-grid">
+
+          <div class="field-group">
+            <label class="field-label" for="inp-name">Full Name <span class="req">*</span></label>
+            <input class="field-input" type="text" id="inp-name"
+              placeholder="e.g. Riya Sharma" autocomplete="name" />
+            <span class="field-error" id="err-name"></span>
+          </div>
+
+          <div class="field-group">
+            <label class="field-label" for="inp-service">Service / Test Taken <span class="req">*</span></label>
+            <div class="select-wrap">
+              <select class="field-input field-select" id="inp-service">
+                <option value="">— Select a service —</option>
+                <option value="MIT: Multiple Intelligence Assessment">MIT: Multiple Intelligence Assessment</option>
+                <option value="CIQT: Intelligence Quotient Assessment">CIQT: Intelligence Quotient Assessment</option>
+                <option value="BCPA: Psychometric Assessment">BCPA: Psychometric Assessment</option>
+                <option value="BEST: Engineering Sorter Assessment">BEST: Engineering Sorter Assessment</option>
+              </select>
+              <span class="select-arrow" aria-hidden="true">▾</span>
+            </div>
+            <span class="field-error" id="err-service"></span>
+          </div>
+
+        </div><!-- /.form-grid -->
+
+        <!-- ─── Star Rating + Animated Face ──── -->
+        <div class="field-group rating-group">
+          <label class="field-label">Your Rating <span class="req">*</span></label>
+
+          <!-- Animated expression face -->
+          <div class="face-wrap" id="face-wrap">
+            <svg class="face-svg" id="face-svg" viewBox="0 0 100 100"
+                 xmlns="http://www.w3.org/2000/svg" aria-hidden="true">
+
+              <!-- Face circle -->
+              <circle id="face-circle" cx="50" cy="50" r="44"
+                fill="#f0f0f0" stroke="#e0e0e0" stroke-width="2"/>
+
+              <!-- LEFT EYE — default: simple dot -->
+              <g id="eye-left">
+                <circle id="eye-l-dot" cx="35" cy="40" r="4" fill="#555"/>
+                <!-- star eye (hidden by default) -->
+                <text id="eye-l-star" x="35" y="45" text-anchor="middle"
+                      font-size="12" fill="#ffb300" opacity="0">★</text>
+                <!-- sad eye brow -->
+                <path id="eye-l-brow" d="M28 32 Q35 28 42 32"
+                      stroke="#555" stroke-width="2.5" fill="none"
+                      stroke-linecap="round" opacity="0"/>
+                <!-- closed / x eye for very sad -->
+                <path id="eye-l-x" d="M31 37 L39 43 M39 37 L31 43"
+                      stroke="#555" stroke-width="2.5" fill="none"
+                      stroke-linecap="round" opacity="0"/>
+              </g>
+
+              <!-- RIGHT EYE -->
+              <g id="eye-right">
+                <circle id="eye-r-dot" cx="65" cy="40" r="4" fill="#555"/>
+                <text id="eye-r-star" x="65" y="45" text-anchor="middle"
+                      font-size="12" fill="#ffb300" opacity="0">★</text>
+                <path id="eye-r-brow" d="M58 32 Q65 28 72 32"
+                      stroke="#555" stroke-width="2.5" fill="none"
+                      stroke-linecap="round" opacity="0"/>
+                <path id="eye-r-x" d="M61 37 L69 43 M69 37 L61 43"
+                      stroke="#555" stroke-width="2.5" fill="none"
+                      stroke-linecap="round" opacity="0"/>
+              </g>
+
+              <!-- MOUTH — transitions via JS -->
+              <!-- Neutral line (default) -->
+              <path id="mouth-neutral" d="M36 65 Q50 65 64 65"
+                stroke="#555" stroke-width="2.5" fill="none"
+                stroke-linecap="round"/>
+              <!-- Sad frown (hidden) -->
+              <path id="mouth-sad" d="M36 70 Q50 60 64 70"
+                stroke="#555" stroke-width="2.5" fill="none"
+                stroke-linecap="round" opacity="0"/>
+              <!-- Slight smile (hidden) -->
+              <path id="mouth-smile-sm" d="M36 63 Q50 72 64 63"
+                stroke="#555" stroke-width="2.5" fill="none"
+                stroke-linecap="round" opacity="0"/>
+              <!-- Big smile open (hidden) -->
+              <path id="mouth-smile-lg" d="M32 62 Q50 78 68 62"
+                stroke="#555" stroke-width="2.5" fill="none"
+                stroke-linecap="round" opacity="0"/>
+              <!-- Open mouth / laugh (hidden) -->
+              <path id="mouth-laugh" d="M32 60 Q50 82 68 60"
+                stroke="#555" stroke-width="2" fill="#ff8a80" opacity="0"/>
+
+              <!-- TEARS (hidden, shown for 1-star) -->
+              <g id="tears" opacity="0">
+                <ellipse cx="32" cy="50" rx="3" ry="5" fill="#64b5f6" opacity="0.8"/>
+                <ellipse cx="68" cy="50" rx="3" ry="5" fill="#64b5f6" opacity="0.8"/>
+              </g>
+
+              <!-- BLUSH cheeks (hidden, shown for 4-5 stars) -->
+              <g id="blush" opacity="0">
+                <ellipse cx="24" cy="58" rx="9" ry="6" fill="#ff8a80" opacity="0.35"/>
+                <ellipse cx="76" cy="58" rx="9" ry="6" fill="#ff8a80" opacity="0.35"/>
+              </g>
+
+              <!-- SPARKLES around face (hidden, 5-star) -->
+              <g id="sparkles" opacity="0">
+                <text x="10" y="22" font-size="10" fill="#ffb300">✦</text>
+                <text x="80" y="18" font-size="8"  fill="#ffb300">✦</text>
+                <text x="5"  y="60" font-size="7"  fill="#ff8a80">✦</text>
+                <text x="86" y="65" font-size="9"  fill="#a78bca">✦</text>
+              </g>
+
+            </svg>
+
+            <!-- Expression label text -->
+            <div class="face-label" id="face-label">How was it?</div>
+          </div><!-- /.face-wrap -->
+
+          <!-- Stars -->
+          <div class="stars-wrap" id="star-rating" role="radiogroup">
+            <button class="star" data-value="1" type="button" aria-label="1 star">★</button>
+            <button class="star" data-value="2" type="button" aria-label="2 stars">★</button>
+            <button class="star" data-value="3" type="button" aria-label="3 stars">★</button>
+            <button class="star" data-value="4" type="button" aria-label="4 stars">★</button>
+            <button class="star" data-value="5" type="button" aria-label="5 stars">★</button>
+          </div>
+          <span class="rating-label" id="rating-label">Tap a star to rate</span>
+          <span class="field-error" id="err-rating"></span>
+        </div>
+
+        <button class="btn btn--primary" id="btn-step1-next">
+          <span>Continue</span>
+          <svg class="btn-icon" width="18" height="18" viewBox="0 0 24 24"
+               fill="none" stroke="currentColor" stroke-width="2.5"
+               stroke-linecap="round" stroke-linejoin="round">
+            <path d="M5 12h14M12 5l7 7-7 7"/>
+          </svg>
+        </button>
+      </div><!-- /#step-1 -->
+
+
+      <!-- ══ STEP 2A: Complaint ═══════════════════════════════════ -->
+      <div class="form-step" id="step-2-complaint">
+        <div class="step-badge step-badge--complaint">⚠ Complaint</div>
+        <h2 class="card-title">We're Sorry to Hear That</h2>
+        <p class="card-subtitle">Please tell us what went wrong — our team will review this and get back to you.</p>
+
+        <div class="field-group">
+          <label class="field-label" for="inp-complaint">Describe Your Concern <span class="req">*</span></label>
+          <textarea class="field-input field-textarea" id="inp-complaint"
+                    placeholder="Tell us what happened and how we can make it right..."
+                    maxlength="1000" rows="5"></textarea>
+          <div class="char-row"><span id="char-count">0</span>/1000</div>
+          <span class="field-error" id="err-complaint"></span>
+        </div>
+
+        <div class="btn-row">
+          <button class="btn btn--ghost" id="btn-complaint-back">← Back</button>
+          <button class="btn btn--danger" id="btn-complaint-submit">
+            <span>Submit Feedback</span>
+            <span class="btn-spinner hidden" id="spinner-complaint"></span>
+          </button>
+        </div>
+      </div><!-- /#step-2-complaint -->
+
+
+      <!-- ══ STEP 2B: AI Review ════════════════════════════════════ -->
+      <div class="form-step" id="step-2-review">
+        <div class="step-badge step-badge--review">✨ Review</div>
+        <h2 class="card-title">Your AI-Generated Review</h2>
+        <p class="card-subtitle">We've crafted a personalised review for you. Feel free to edit it before sharing.</p>
+
+        <!-- AI Loading -->
+        <div class="ai-loading" id="ai-loading">
+          <div class="ai-pulse">
+            <svg width="52" height="52" viewBox="0 0 40 40" fill="none">
+              <circle cx="20" cy="20" r="19" stroke="currentColor" stroke-width="1.2"/>
+              <path d="M6 20 Q10 10 14 20 Q18 30 22 20 Q26 10 30 20 Q34 14 38 20"
+                    stroke="currentColor" stroke-width="2" stroke-linecap="round" fill="none"/>
+              <circle cx="20" cy="20" r="3" fill="currentColor"/>
+            </svg>
+          </div>
+          <p class="ai-loading-text">Generating your personalised review<span class="dots"></span></p>
+        </div>
+
+        <!-- Review textarea (shown after AI generates) -->
+        <div class="review-box hidden" id="review-box">
+          <div class="field-group">
+            <label class="field-label" for="inp-review">
+              Your Review <span class="edit-hint">(you can edit this)</span>
+            </label>
+            <textarea class="field-input field-textarea field-textarea--review"
+                      id="inp-review" rows="5"></textarea>
+          </div>
+
+          <div class="btn-row">
+            <button class="btn btn--ghost" id="btn-review-back">← Back</button>
+            <button class="btn btn--primary" id="btn-review-submit">
+              <span>Submit &amp; Go to Google</span>
+              <span class="btn-spinner hidden" id="spinner-review"></span>
+            </button>
+          </div>
+        </div>
+
+        <!-- Error state -->
+        <div class="ai-error hidden" id="ai-error">
+          <p>⚠ Could not generate a review. Please check your Mistral API key.</p>
+          <button class="btn btn--ghost" id="btn-ai-retry">Retry</button>
+        </div>
+      </div><!-- /#step-2-review -->
+
+
+      <!-- ══ STEP 3: Success ═══════════════════════════════════════ -->
+      <div class="form-step" id="step-3">
+        <div class="success-icon" id="success-icon" aria-hidden="true">
+          <svg width="64" height="64" viewBox="0 0 64 64" fill="none">
+            <circle cx="32" cy="32" r="31" stroke="currentColor" stroke-width="1.5"/>
+            <path class="checkmark" d="M18 32l10 10 18-18"
+                  stroke="currentColor" stroke-width="3"
+                  stroke-linecap="round" stroke-linejoin="round" fill="none"/>
+          </svg>
+        </div>
+
+        <h2 class="card-title" id="success-title">Review Submitted!</h2>
+        <p class="card-subtitle" id="success-message"></p>
+
+        <!-- Copy button — shown only for reviews -->
+        <div id="copy-section" class="hidden">
+          <div class="copied-review-preview" id="copy-preview"></div>
+          <button class="btn btn--copy" id="btn-copy">
+            <svg width="16" height="16" viewBox="0 0 24 24" fill="none"
+                 stroke="currentColor" stroke-width="2"
+                 stroke-linecap="round" stroke-linejoin="round">
+              <rect x="9" y="9" width="13" height="13" rx="2"/>
+              <path d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1"/>
+            </svg>
+            <span id="copy-btn-text">Copy Review</span>
+          </button>
+          <p class="redirect-notice">
+            Redirecting to Google Reviews in <span id="countdown">5</span>s…
+          </p>
+        </div>
+
+        <button class="btn btn--ghost btn--sm" id="btn-restart">Submit Another Response</button>
+      </div><!-- /#step-3 -->
+
+    </section><!-- /.card -->
+
+    <footer class="site-footer">
+      Brain Checker &copy; 2025 — Decoding Brain Power. Unleashing Opportunities.
+    </footer>
+
+  </main>
+
+  <script src="/static/script.js"></script>
+</body>
+</html>
