@@ -366,20 +366,26 @@ body {
   margin-bottom: 16px;
 }
 
-.face-svg {
+/* 3D emoji face container */
+.face-3d {
   width: 90px;
   height: 90px;
-  /* All SVG elements inside transition smoothly */
-  transition: filter 0.4s ease;
+  display: flex;
+  align-items: center;
+  justify-content: center;
 }
 
-/* Parts of the SVG that animate */
-.face-svg circle,
-.face-svg path,
-.face-svg text,
-.face-svg ellipse,
-.face-svg g {
-  transition: opacity 0.35s ease, fill 0.35s ease, stroke 0.35s ease;
+/* The actual 3D emoji */
+.face-emoji {
+  font-size: 74px;
+  line-height: 1;
+  display: block;
+  transition: all 0.35s cubic-bezier(0.22, 1, 0.36, 1);
+  /* 3D depth effect using layered shadows */
+  filter:
+    drop-shadow(0px 6px 0px rgba(0,0,0,0.12))
+    drop-shadow(0px 3px 3px rgba(0,0,0,0.10))
+    drop-shadow(0px 1px 1px rgba(0,0,0,0.08));
 }
 
 /* Face bounce when rating changes */

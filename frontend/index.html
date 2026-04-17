@@ -71,91 +71,13 @@
         <div class="field-group rating-group">
           <label class="field-label">Your Rating <span class="req">*</span></label>
 
-          <!-- Animated expression face -->
+       <!-- 3D Emoji Face -->
           <div class="face-wrap" id="face-wrap">
-            <svg class="face-svg" id="face-svg" viewBox="0 0 100 100"
-                 xmlns="http://www.w3.org/2000/svg" aria-hidden="true">
-
-              <!-- Face circle -->
-              <circle id="face-circle" cx="50" cy="50" r="44"
-                fill="#f0f0f0" stroke="#e0e0e0" stroke-width="2"/>
-
-              <!-- LEFT EYE — default: simple dot -->
-              <g id="eye-left">
-                <circle id="eye-l-dot" cx="35" cy="40" r="4" fill="#555"/>
-                <!-- star eye (hidden by default) -->
-                <text id="eye-l-star" x="35" y="45" text-anchor="middle"
-                      font-size="12" fill="#ffb300" opacity="0">★</text>
-                <!-- sad eye brow -->
-                <path id="eye-l-brow" d="M28 32 Q35 28 42 32"
-                      stroke="#555" stroke-width="2.5" fill="none"
-                      stroke-linecap="round" opacity="0"/>
-                <!-- closed / x eye for very sad -->
-                <path id="eye-l-x" d="M31 37 L39 43 M39 37 L31 43"
-                      stroke="#555" stroke-width="2.5" fill="none"
-                      stroke-linecap="round" opacity="0"/>
-              </g>
-
-              <!-- RIGHT EYE -->
-              <g id="eye-right">
-                <circle id="eye-r-dot" cx="65" cy="40" r="4" fill="#555"/>
-                <text id="eye-r-star" x="65" y="45" text-anchor="middle"
-                      font-size="12" fill="#ffb300" opacity="0">★</text>
-                <path id="eye-r-brow" d="M58 32 Q65 28 72 32"
-                      stroke="#555" stroke-width="2.5" fill="none"
-                      stroke-linecap="round" opacity="0"/>
-                <path id="eye-r-x" d="M61 37 L69 43 M69 37 L61 43"
-                      stroke="#555" stroke-width="2.5" fill="none"
-                      stroke-linecap="round" opacity="0"/>
-              </g>
-
-              <!-- MOUTH — transitions via JS -->
-              <!-- Neutral line (default) -->
-              <path id="mouth-neutral" d="M36 65 Q50 65 64 65"
-                stroke="#555" stroke-width="2.5" fill="none"
-                stroke-linecap="round"/>
-              <!-- Sad frown (hidden) -->
-              <path id="mouth-sad" d="M36 70 Q50 60 64 70"
-                stroke="#555" stroke-width="2.5" fill="none"
-                stroke-linecap="round" opacity="0"/>
-              <!-- Slight smile (hidden) -->
-              <path id="mouth-smile-sm" d="M36 63 Q50 72 64 63"
-                stroke="#555" stroke-width="2.5" fill="none"
-                stroke-linecap="round" opacity="0"/>
-              <!-- Big smile open (hidden) -->
-              <path id="mouth-smile-lg" d="M32 62 Q50 78 68 62"
-                stroke="#555" stroke-width="2.5" fill="none"
-                stroke-linecap="round" opacity="0"/>
-              <!-- Open mouth / laugh (hidden) -->
-              <path id="mouth-laugh" d="M32 60 Q50 82 68 60"
-                stroke="#555" stroke-width="2" fill="#ff8a80" opacity="0"/>
-
-              <!-- TEARS (hidden, shown for 1-star) -->
-              <g id="tears" opacity="0">
-                <ellipse cx="32" cy="50" rx="3" ry="5" fill="#64b5f6" opacity="0.8"/>
-                <ellipse cx="68" cy="50" rx="3" ry="5" fill="#64b5f6" opacity="0.8"/>
-              </g>
-
-              <!-- BLUSH cheeks (hidden, shown for 4-5 stars) -->
-              <g id="blush" opacity="0">
-                <ellipse cx="24" cy="58" rx="9" ry="6" fill="#ff8a80" opacity="0.35"/>
-                <ellipse cx="76" cy="58" rx="9" ry="6" fill="#ff8a80" opacity="0.35"/>
-              </g>
-
-              <!-- SPARKLES around face (hidden, 5-star) -->
-              <g id="sparkles" opacity="0">
-                <text x="10" y="22" font-size="10" fill="#ffb300">✦</text>
-                <text x="80" y="18" font-size="8"  fill="#ffb300">✦</text>
-                <text x="5"  y="60" font-size="7"  fill="#ff8a80">✦</text>
-                <text x="86" y="65" font-size="9"  fill="#a78bca">✦</text>
-              </g>
-
-            </svg>
-
-            <!-- Expression label text -->
+            <div class="face-3d" id="face-svg">
+              <span class="face-emoji" id="face-emoji">😶</span>
+            </div>
             <div class="face-label" id="face-label">How was it?</div>
           </div><!-- /.face-wrap -->
-
           <!-- Stars -->
           <div class="stars-wrap" id="star-rating" role="radiogroup">
             <button class="star" data-value="1" type="button" aria-label="1 star">★</button>
@@ -244,7 +166,7 @@
 
         <!-- Error state -->
         <div class="ai-error hidden" id="ai-error">
-          <p>⚠ Could not generate a review. Please check your Mistral API key.</p>
+          <p>⚠ Something went wrong. Please try again.</p>
           <button class="btn btn--ghost" id="btn-ai-retry">Retry</button>
         </div>
       </div><!-- /#step-2-review -->
