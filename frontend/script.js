@@ -52,38 +52,154 @@ function updateProgress(stepNum) {
   - label:       text under face
   - show/hide:   which mouth, eyes, extras to toggle
 */
-/* ================================================================
-   3D EMOJI FACE — changes per star rating
-   ================================================================ */
-
-// 3D emoji + label + animation per rating
 const faceConfig = {
-  0: { emoji: "😶", label: "How was it?",    color: "var(--text-light)", anim: null        },
-  1: { emoji: "😭", label: "Very Poor",      color: "#c62828",           anim: "shake"     },
-  2: { emoji: "😞", label: "Poor",           color: "#bf360c",           anim: "bounce"    },
-  3: { emoji: "😐", label: "Average",        color: "#f57f17",           anim: "bounce"    },
-  4: { emoji: "😄", label: "Good",           color: "#2e7d32",           anim: "bounce"    },
-  5: { emoji: "🤩", label: "Excellent!",     color: "#01579b",           anim: "tada"      },
+  0: {  // default/reset
+    faceColor:   "#f0f0f0",
+    strokeColor: "#e0e0e0",
+    labelColor:  "var(--text-light)",
+    labelText:   "How was it?",
+    animation:   null,
+    mouth:       "neutral",
+    eyeStyle:    "normal",
+    tears:       false,
+    blush:       false,
+    sparkles:    false,
+    brows:       false,
+  },
+  1: {
+    faceColor:   "#ffcdd2",     // light red
+    strokeColor: "#e57373",
+    labelColor:  "#c62828",
+    labelText:   "Very Poor 😢",
+    animation:   "shake",
+    mouth:       "sad",
+    eyeStyle:    "x",           // X eyes
+    tears:       true,
+    blush:       false,
+    sparkles:    false,
+    brows:       true,
+  },
+  2: {
+    faceColor:   "#ffe0b2",     // light orange
+    strokeColor: "#ff8a65",
+    labelColor:  "#bf360c",
+    labelText:   "Poor 😕",
+    animation:   "bounce",
+    mouth:       "sad",
+    eyeStyle:    "normal",
+    tears:       false,
+    blush:       false,
+    sparkles:    false,
+    brows:       true,
+  },
+  3: {
+    faceColor:   "#fff9c4",     // light yellow
+    strokeColor: "#f9a825",
+    labelColor:  "#f57f17",
+    labelText:   "Average 😐",
+    animation:   "bounce",
+    mouth:       "neutral",
+    eyeStyle:    "normal",
+    tears:       false,
+    blush:       false,
+    sparkles:    false,
+    brows:       false,
+  },
+  4: {
+    faceColor:   "#c8e6c9",     // light green
+    strokeColor: "#66bb6a",
+    labelColor:  "#2e7d32",
+    labelText:   "Good 😊",
+    animation:   "bounce",
+    mouth:       "smile-sm",
+    eyeStyle:    "normal",
+    tears:       false,
+    blush:       true,
+    sparkles:    false,
+    brows:       false,
+  },
+  5: {
+    faceColor:   "#b3e5fc",     // light blue
+    strokeColor: "#29b6f6",
+    labelColor:  "#01579b",
+    labelText:   "Excellent! 🤩",
+    animation:   "tada",
+    mouth:       "laugh",
+    eyeStyle:    "star",        // star eyes
+    tears:       false,
+    blush:       true,
+    sparkles:    true,
+    brows:       false,
+  },
 };
 
 function applyFace(rating) {
   const cfg   = faceConfig[rating] || faceConfig[0];
-  const face  = $("face-svg");    // the .face-3d div
-  const emoji = $("face-emoji");  // the emoji span
+  const svg   = $("face-svg");
   const label = $("face-label");
 
-  // Swap emoji character
-  emoji.textContent = cfg.emoji;
+  // ── Face circle colour ────────────────────────────────────────
+  const circle = $("face-circle");
+  circle.setAttribute("fill",   cfg.faceColor);
+  circle.setAttribute("stroke", cfg.strokeColor);
 
-  // Update label
-  label.textContent = cfg.label;
-  label.style.color = cfg.color;
+  // ── Mouth: show the right one ─────────────────────────────────
+  const mouths = {
+    "neutral":  $("mouth-neutral"),
+    "sad":      $("mouth-sad"),
+    "smile-sm": $("mouth-smile-sm"),
+    "smile-lg": $("mouth-smile-lg"),
+    "laugh":    $("mouth-laugh"),
+  };
+  Object.entries(mouths).forEach(([key, el]) => {
+    el.setAttribute("opacity", key === cfg.mouth ? "1" : "0");
+    el.setAttribute("stroke", cfg.strokeColor);
+  });
+  // The laugh mouth has a fill
+  if (cfg.mouth === "laugh") {
+    $("mouth-laugh").setAttribute("fill", "#ff8a80");
+    $("mouth-laugh").setAttribute("stroke", cfg.strokeColor);
+  }
 
-  // Trigger animation (same CSS classes as before — bounce / shake / tada)
-  if (cfg.anim) {
-    face.classList.remove("bounce", "shake", "tada");
-    void face.offsetWidth; // force reflow so animation restarts
-    face.classList.add(cfg.anim);
+  // ── Eyes ──────────────────────────────────────────────────────
+  // Normal dots
+  $("eye-l-dot").setAttribute("opacity", cfg.eyeStyle === "normal" ? "1" : "0");
+  $("eye-r-dot").setAttribute("opacity", cfg.eyeStyle === "normal" ? "1" : "0");
+  $("eye-l-dot").setAttribute("fill", cfg.strokeColor);
+  $("eye-r-dot").setAttribute("fill", cfg.strokeColor);
+
+  // Star eyes (5-star)
+  $("eye-l-star").setAttribute("opacity", cfg.eyeStyle === "star" ? "1" : "0");
+  $("eye-r-star").setAttribute("opacity", cfg.eyeStyle === "star" ? "1" : "0");
+
+  // X eyes (1-star)
+  $("eye-l-x").setAttribute("opacity", cfg.eyeStyle === "x" ? "1" : "0");
+  $("eye-r-x").setAttribute("opacity", cfg.eyeStyle === "x" ? "1" : "0");
+  $("eye-l-x").setAttribute("stroke", cfg.strokeColor);
+  $("eye-r-x").setAttribute("stroke", cfg.strokeColor);
+
+  // ── Sad brows ─────────────────────────────────────────────────
+  const browOpacity = cfg.brows ? "1" : "0";
+  $("eye-l-brow").setAttribute("opacity", browOpacity);
+  $("eye-r-brow").setAttribute("opacity", browOpacity);
+  $("eye-l-brow").setAttribute("stroke", cfg.strokeColor);
+  $("eye-r-brow").setAttribute("stroke", cfg.strokeColor);
+
+  // ── Extras ────────────────────────────────────────────────────
+  $("tears").setAttribute("opacity",    cfg.tears    ? "1" : "0");
+  $("blush").setAttribute("opacity",    cfg.blush    ? "1" : "0");
+  $("sparkles").setAttribute("opacity", cfg.sparkles ? "1" : "0");
+
+  // ── Label ─────────────────────────────────────────────────────
+  label.textContent  = cfg.labelText;
+  label.style.color  = cfg.labelColor;
+
+  // ── Trigger animation ─────────────────────────────────────────
+  if (cfg.animation) {
+    svg.classList.remove("bounce","shake","tada");
+    // Force reflow so CSS animation restarts
+    void svg.offsetWidth;
+    svg.classList.add(cfg.animation);
   }
 }
 
